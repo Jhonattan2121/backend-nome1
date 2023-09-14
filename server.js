@@ -5,7 +5,7 @@ const cors = require('cors');
 app.use(express.json());
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://login-cadastro-wp20.onrender.com',
   }));
 // Simule um banco de dados de usuários (você deve usar um banco de dados real)
 const users = [];
