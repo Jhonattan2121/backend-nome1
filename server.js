@@ -8,6 +8,16 @@ app.use(cors({
     origin: 'https://projeto-front-end-login-e-cadastro.vercel.app',
   }));
 const users = [];
+const feedbackData = []; 
+
+app.post('/api/feedback', (req, res) => {
+  const { opinion } = req.body;
+
+  feedbackData.push({ opinion });
+
+  return res.status(200).json({ message: 'Feedback recebido com sucesso' });
+});
+
 
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
