@@ -19,26 +19,22 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post('/api/send-feedback', (req, res) => {
-  const { message } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ message: 'Mensagem não fornecida' });
-  }
+  const { email, opinion } = req.body;
 
   const mailOptions = {
     from: 'jhoontutors@gmail.com', 
-    to: 'jhoontutors@gmail.com', 
-    subject: 'Nova Mensagem de Usuário',
-    text: `Nova mensagem recebida: ${message}`,
+    to: 'jhoontutors@email.com', 
+    subject: 'Feedback do Usuário',
+    text: `Opinião: ${opinion}\nE-mail do usuário: ${email}`
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error(error);
-      res.status(500).json({ message: 'Ocorreu um erro ao enviar a mensagem por e-mail' });
+      res.status(500).json({ message: 'Ocorreu um erro ao enviar o feedback por e-mail' });
     } else {
-      console.log('E-mail de mensagem enviado: ' + info.response);
-      res.status(200).json({ message: 'Mensagem enviada com sucesso' });
+      console.log('E-mail enviado: ' + info.response);
+      res.status(200).json({ message: 'Feedback enviado com sucesso' });
     }
   });
 });
