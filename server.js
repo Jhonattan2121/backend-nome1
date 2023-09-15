@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post('/api/send-feedback', (req, res) => {
-  const { email, opinion } = req.body;
+  const { opinion } = req.body;
 
   const mailOptions = {
     from: 'jhoontutors@gmail.com', 
