@@ -2,42 +2,12 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000; 
 const cors = require('cors');
-const nodemailer = require('nodemailer');
-
 app.use(express.json());
 
 app.use(cors({
     origin: 'https://projeto-front-end-login-e-cadastro.vercel.app',
   }));
 const users = [];
-
-const transporter = nodemailer.createTransport({
-  service: 'Gmail', 
-  auth: {
-    user: 'jhoontutors@gmail.com', 
-  },
-});
-
-app.post('/api/send-feedback', (req, res) => {
-  const { opinion } = req.body;
-
-  const mailOptions = {
-    from: 'jhoontutors@gmail.com', 
-    to: 'jhoontutors@email.com', 
-    subject: 'Feedback do Usuário',
-    text: `Opinião: ${opinion}\nE-mail do usuário: ${email}`
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Ocorreu um erro ao enviar o feedback por e-mail' });
-    } else {
-      console.log('E-mail enviado: ' + info.response);
-      res.status(200).json({ message: 'Feedback enviado com sucesso' });
-    }
-  });
-});
 
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
