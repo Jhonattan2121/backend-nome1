@@ -32,6 +32,21 @@ app.post('/api/feedback', async (req, res) => {
   }
 });
 
+
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+
+  const existingUser = users.find((user) => user.username === username);
+  if (existingUser) {
+    return res.status(400).json({ message: 'Usuário já registrado' });
+  }
+
+  const newUser = { username, password };
+  users.push(newUser);
+
+  return res.status(201).json({ message: 'Usuário registrado com sucesso' });
+});
+
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
