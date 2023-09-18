@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -17,12 +17,10 @@ app.use(
 const users = [];
 app.use(bodyParser.json());
 
-// Rota para receber avaliações
 app.post('/api/feedback', async (req, res) => {
-  try {
-    const { opinion } = req.body;
+  const { opinion } = req.body;
 
-    // Salvar a avaliação no banco de dados
+  try {
     const feedback = await prisma.feedback.create({
       data: {
         opinion,
@@ -31,7 +29,17 @@ app.post('/api/feedback', async (req, res) => {
 
     res.status(201).json(feedback);
   } catch (error) {
-    console.error('Erro ao salvar a avaliação:', error);
+    console.error('Erro ao criar feedback:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/feedback', async (req, res) => {
+  try {
+    const feedbackList = await prisma.feedback.findMany();
+    res.json(feedbackList);
+  } catch (error) {
+    console.error('Erro ao buscar feedbacks:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });

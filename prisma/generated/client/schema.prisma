@@ -1,0 +1,16 @@
+// Data source
+datasource db {
+  provider = "postgresql"
+  url      = env("https://backend-fwd1.onrender.com")
+}
+
+// Generator
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+model Feedback {
+  id      Int      @id @default(autoincrement())
+  opinion String
+}
