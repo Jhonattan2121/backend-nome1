@@ -1,11 +1,12 @@
-generator client {
-  provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client"
-}
-
+// Data source
 datasource db {
   provider = "postgresql"
   url      = env("https://backend-fwd1.onrender.com")
+}
+
+// Generator
+generator client {
+  provider = "prisma-client-js"
 }
 
 model Feedback {
