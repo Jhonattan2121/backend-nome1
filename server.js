@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
-const { PrismaClient } = require('@prisma/client'); // Importe o PrismaClient corretamente
-const prisma = new PrismaClient(); // Crie uma instância do PrismaClient
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
