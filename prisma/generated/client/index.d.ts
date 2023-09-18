@@ -3,21 +3,24 @@
  * Client
 **/
 
-import * as runtime from './runtime/library';
-import $Types = runtime.Types // general types
-import $Public = runtime.Types.Public
-import $Utils = runtime.Types.Utils
-import $Extensions = runtime.Types.Extensions
-import $Result = runtime.Types.Result
-
-export type PrismaPromise<T> = $Public.PrismaPromise<T>
+import * as runtime from './runtime/index';
+declare const prisma: unique symbol
+export type PrismaPromise<A> = Promise<A> & {[prisma]: true}
+type UnwrapPromise<P extends any> = P extends Promise<infer R> ? R : P
+type UnwrapTuple<Tuple extends readonly unknown[]> = {
+  [K in keyof Tuple]: K extends `${number}` ? Tuple[K] extends PrismaPromise<infer X> ? X : UnwrapPromise<Tuple[K]> : UnwrapPromise<Tuple[K]>
+};
 
 
 /**
  * Model Feedback
  * 
  */
-export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
+export type Feedback = {
+  id: number
+  opinion: string
+}
+
 
 /**
  * ##  Prisma Client ʲˢ
@@ -36,9 +39,34 @@ export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
 export class PrismaClient<
   T extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
   U = 'log' extends keyof T ? T['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<T['log']> : never : never,
-  ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs
-> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
+  GlobalReject = 'rejectOnNotFound' extends keyof T
+    ? T['rejectOnNotFound']
+    : false
+      > {
+      /**
+       * @private
+       */
+      private fetcher;
+      /**
+       * @private
+       */
+      private readonly dmmf;
+      /**
+       * @private
+       */
+      private connectionPromise?;
+      /**
+       * @private
+       */
+      private disconnectionPromise?;
+      /**
+       * @private
+       */
+      private readonly engineConfig;
+      /**
+       * @private
+       */
+      private readonly measurePerformance;
 
     /**
    * ##  Prisma Client ʲˢ
@@ -56,22 +84,20 @@ export class PrismaClient<
    */
 
   constructor(optionsArg ?: Prisma.Subset<T, Prisma.PrismaClientOptions>);
-  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): void;
+  $on<V extends (U | 'beforeExit')>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : V extends 'beforeExit' ? () => Promise<void> : Prisma.LogEvent) => void): void;
 
   /**
    * Connect with the database
    */
-  $connect(): $Utils.JsPromise<void>;
+  $connect(): Promise<void>;
 
   /**
    * Disconnect from the database
    */
-  $disconnect(): $Utils.JsPromise<void>;
+  $disconnect(): Promise<void>;
 
   /**
    * Add a middleware
-   * @deprecated since 4.16.0. For new code, prefer client extensions instead.
-   * @see https://pris.ly/d/extensions
    */
   $use(cb: Prisma.Middleware): void
 
@@ -84,7 +110,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
+  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): PrismaPromise<number>;
 
   /**
    * Executes a raw query and returns the number of affected rows.
@@ -96,7 +122,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
+  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): PrismaPromise<number>;
 
   /**
    * Performs a prepared raw query and returns the `SELECT` data.
@@ -107,7 +133,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
+  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): PrismaPromise<T>;
 
   /**
    * Performs a raw query and returns the `SELECT` data.
@@ -119,7 +145,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
-  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
+  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): PrismaPromise<T>;
 
   /**
    * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
@@ -134,12 +160,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
-
-  $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
-
-
-  $extends: $Extensions.ExtendsHook<'extends', Prisma.TypeMapCb, ExtArgs>
+  $transaction<P extends PrismaPromise<any>[]>(arg: [...P]): Promise<UnwrapTuple<P>>;
 
       /**
    * `prisma.feedback`: Exposes CRUD operations for the **Feedback** model.
@@ -149,18 +170,11 @@ export class PrismaClient<
     * const feedbacks = await prisma.feedback.findMany()
     * ```
     */
-  get feedback(): Prisma.FeedbackDelegate<ExtArgs>;
+  get feedback(): Prisma.FeedbackDelegate<GlobalReject>;
 }
 
 export namespace Prisma {
   export import DMMF = runtime.DMMF
-
-  export type PrismaPromise<T> = $Public.PrismaPromise<T>
-
-  /**
-   * Validator
-   */
-  export import validator = runtime.Public.validator
 
   /**
    * Prisma Errors
@@ -170,7 +184,6 @@ export namespace Prisma {
   export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
   export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
   export import PrismaClientValidationError = runtime.PrismaClientValidationError
-  export import NotFoundError = runtime.NotFoundError
 
   /**
    * Re-export of sql-template-tag
@@ -189,25 +202,7 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
-   * Metrics 
-   */
-  export type Metrics = runtime.Metrics
-  export type Metric<T> = runtime.Metric<T>
-  export type MetricHistogram = runtime.MetricHistogram
-  export type MetricHistogramBucket = runtime.MetricHistogramBucket
-
-  /**
-  * Extensions
-  */
-  export import Extension = $Extensions.UserArgs
-  export import getExtensionContext = runtime.Extensions.getExtensionContext
-  export import Args = $Public.Args
-  export import Payload = $Public.Payload
-  export import Result = $Public.Result
-  export import Exact = $Public.Exact
-
-  /**
-   * Prisma Client JS version: 5.3.1
+   * Prisma Client JS version: 3.15.2
    * Query Engine version: 461d6a05159055555eb7dfb337c9fb271cbd4d7e
    */
   export type PrismaVersion = {
@@ -264,76 +259,46 @@ export namespace Prisma {
    *
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
    */
-  export type InputJsonValue = string | number | boolean | InputJsonObject | InputJsonArray | { toJSON(): unknown }
-
-  /**
-   * Types of the values used to represent different kinds of `null` values when working with JSON fields.
-   * 
-   * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-   */
-  namespace NullTypes {
-    /**
-    * Type of `Prisma.DbNull`.
-    * 
-    * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
-    * 
-    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-    */
-    class DbNull {
-      private DbNull: never
-      private constructor()
-    }
-
-    /**
-    * Type of `Prisma.JsonNull`.
-    * 
-    * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
-    * 
-    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-    */
-    class JsonNull {
-      private JsonNull: never
-      private constructor()
-    }
-
-    /**
-    * Type of `Prisma.AnyNull`.
-    * 
-    * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
-    * 
-    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
-    */
-    class AnyNull {
-      private AnyNull: never
-      private constructor()
-    }
-  }
+  export type InputJsonValue = string | number | boolean | InputJsonObject | InputJsonArray
 
   /**
    * Helper for filtering JSON entries that have `null` on the database (empty on the db)
    * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
-  export const DbNull: NullTypes.DbNull
+  export const DbNull: 'DbNull'
 
   /**
    * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
    * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
-  export const JsonNull: NullTypes.JsonNull
+  export const JsonNull: 'JsonNull'
 
   /**
    * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
    * 
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
-  export const AnyNull: NullTypes.AnyNull
+  export const AnyNull: 'AnyNull'
 
   type SelectAndInclude = {
     select: any
     include: any
   }
+  type HasSelect = {
+    select: any
+  }
+  type HasInclude = {
+    include: any
+  }
+  type CheckSelect<T, S, U> = T extends SelectAndInclude
+    ? 'Please either choose `select` or `include`'
+    : T extends HasSelect
+    ? U
+    : T extends HasInclude
+    ? U
+    : S
 
   /**
    * Get the type of the value, that the Promise holds.
@@ -343,7 +308,7 @@ export namespace Prisma {
   /**
    * Get the return type of a function which returns a Promise.
    */
-  export type PromiseReturnType<T extends (...args: any) => $Utils.JsPromise<any>> = PromiseType<ReturnType<T>>
+  export type PromiseReturnType<T extends (...args: any) => Promise<any>> = PromiseType<ReturnType<T>>
 
   /**
    * From T, pick a set of properties whose keys are in the union K
@@ -359,9 +324,9 @@ export namespace Prisma {
     [K in keyof T]-?: {} extends Prisma__Pick<T, K> ? never : K
   }[keyof T]
 
-  export type TruthyKeys<T> = keyof {
-    [K in keyof T as T[K] extends false | undefined | null ? never : K]: K
-  }
+  export type TruthyKeys<T> = {
+    [key in keyof T]: T[key] extends false | undefined | null ? never : key
+  }[keyof T]
 
   export type TrueKeys<T> = TruthyKeys<Prisma__Pick<T, RequiredKeys<T>>>
 
@@ -414,7 +379,7 @@ export namespace Prisma {
   ? False
   : T extends Date
   ? False
-  : T extends Uint8Array
+  : T extends Buffer
   ? False
   : T extends BigInt
   ? False
@@ -499,16 +464,6 @@ export namespace Prisma {
     [P in K]: T;
   };
 
-  // cause typescript not to expand types and preserve names
-  type NoExpand<T> = T extends unknown ? T : never;
-
-  // this type assumes the passed object is entirely optional
-  type AtLeast<O extends object, K extends string> = NoExpand<
-    O extends unknown
-    ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
-      | {[P in keyof O as P extends K ? K : never]-?: O[P]} & O
-    : never>;
-
   type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
 
   export type Strict<U extends object> = ComputeRaw<_Strict<U>>;
@@ -559,11 +514,19 @@ export namespace Prisma {
 
   export type Keys<U extends Union> = U extends unknown ? keyof U : never
 
+  type Exact<A, W = unknown> = 
+  W extends unknown ? A extends Narrowable ? Cast<A, W> : Cast<
+  {[K in keyof A]: K extends keyof W ? Exact<A[K], W[K]> : never},
+  {[K in keyof W]: K extends keyof A ? Exact<A[K], W[K]> : W[K]}>
+  : never;
+
+  type Narrowable = string | number | boolean | bigint;
+
   type Cast<A, B> = A extends B ? A : B;
 
   export const type: unique symbol;
 
-
+  export function validator<V>(): <S>(select: Exact<S, V>) => S;
 
   /**
    * Used by group by
@@ -604,20 +567,24 @@ export namespace Prisma {
   type MaybeTupleToUnion<T> = T extends any[] ? TupleToUnion<T> : T
 
   /**
-   * Like `Pick`, but additionally can also accept an array of keys
+   * Like `Pick`, but with an array
    */
-  type PickEnumerable<T, K extends Enumerable<keyof T> | keyof T> = Prisma__Pick<T, MaybeTupleToUnion<K>>
+  type PickArray<T, K extends Array<keyof T>> = Prisma__Pick<T, TupleToUnion<K>>
 
   /**
    * Exclude all keys with underscores
    */
   type ExcludeUnderscoreKeys<T extends string> = T extends `_${string}` ? never : T
 
-
-  export type FieldRef<Model, FieldType> = runtime.FieldRef<Model, FieldType>
-
-  type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRef<Model, FieldType>
-
+  class PrismaClientFetcher {
+    private readonly prisma;
+    private readonly debug;
+    private readonly hooks?;
+    constructor(prisma: PrismaClient<any, any>, debug?: boolean, hooks?: Hooks | undefined);
+    request<T>(document: any, dataPath?: string[], rootField?: string, typeName?: string, isList?: boolean, callsite?: string): Promise<T>;
+    sanitizeMessage(message: string): string;
+    protected unpack(document: any, data: any, path: string[], rootField?: string, isList?: boolean): any;
+  }
 
   export const ModelName: {
     Feedback: 'Feedback'
@@ -630,121 +597,48 @@ export namespace Prisma {
     db?: Datasource
   }
 
-
-  interface TypeMapCb extends $Utils.Fn<{extArgs: $Extensions.Args}, $Utils.Record<string, any>> {
-    returns: Prisma.TypeMap<this['params']['extArgs']>
-  }
-
-  export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    meta: {
-      modelProps: 'feedback'
-      txIsolationLevel: Prisma.TransactionIsolationLevel
-    },
-    model: {
-      Feedback: {
-        payload: Prisma.$FeedbackPayload<ExtArgs>
-        fields: Prisma.FeedbackFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.FeedbackFindUniqueArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.FeedbackFindUniqueOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
-          }
-          findFirst: {
-            args: Prisma.FeedbackFindFirstArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.FeedbackFindFirstOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
-          }
-          findMany: {
-            args: Prisma.FeedbackFindManyArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
-          }
-          create: {
-            args: Prisma.FeedbackCreateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
-          }
-          createMany: {
-            args: Prisma.FeedbackCreateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          delete: {
-            args: Prisma.FeedbackDeleteArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
-          }
-          update: {
-            args: Prisma.FeedbackUpdateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
-          }
-          deleteMany: {
-            args: Prisma.FeedbackDeleteManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          updateMany: {
-            args: Prisma.FeedbackUpdateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          upsert: {
-            args: Prisma.FeedbackUpsertArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
-          }
-          aggregate: {
-            args: Prisma.FeedbackAggregateArgs<ExtArgs>,
-            result: $Utils.Optional<AggregateFeedback>
-          }
-          groupBy: {
-            args: Prisma.FeedbackGroupByArgs<ExtArgs>,
-            result: $Utils.Optional<FeedbackGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.FeedbackCountArgs<ExtArgs>,
-            result: $Utils.Optional<FeedbackCountAggregateOutputType> | number
-          }
-        }
-      }
-    }
-  } & {
-    other: {
-      payload: any
-      operations: {
-        $executeRawUnsafe: {
-          args: [query: string, ...values: any[]],
-          result: any
-        }
-        $executeRaw: {
-          args: [query: TemplateStringsArray | Prisma.Sql, ...values: any[]],
-          result: any
-        }
-        $queryRawUnsafe: {
-          args: [query: string, ...values: any[]],
-          result: any
-        }
-        $queryRaw: {
-          args: [query: TemplateStringsArray | Prisma.Sql, ...values: any[]],
-          result: any
-        }
-      }
-    }
-  }
-  export const defineExtension: $Extensions.ExtendsHook<'define', Prisma.TypeMapCb, $Extensions.DefaultArgs>
-  export type DefaultPrismaClient = PrismaClient
+  export type RejectOnNotFound = boolean | ((error: Error) => Error)
+  export type RejectPerModel = { [P in ModelName]?: RejectOnNotFound }
+  export type RejectPerOperation =  { [P in "findUnique" | "findFirst"]?: RejectPerModel | RejectOnNotFound } 
+  type IsReject<T> = T extends true ? True : T extends (err: Error) => Error ? True : False
+  export type HasReject<
+    GlobalRejectSettings extends Prisma.PrismaClientOptions['rejectOnNotFound'],
+    LocalRejectSettings,
+    Action extends PrismaAction,
+    Model extends ModelName
+  > = LocalRejectSettings extends RejectOnNotFound
+    ? IsReject<LocalRejectSettings>
+    : GlobalRejectSettings extends RejectPerOperation
+    ? Action extends keyof GlobalRejectSettings
+      ? GlobalRejectSettings[Action] extends RejectOnNotFound
+        ? IsReject<GlobalRejectSettings[Action]>
+        : GlobalRejectSettings[Action] extends RejectPerModel
+        ? Model extends keyof GlobalRejectSettings[Action]
+          ? IsReject<GlobalRejectSettings[Action][Model]>
+          : False
+        : False
+      : False
+    : IsReject<GlobalRejectSettings>
   export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
 
   export interface PrismaClientOptions {
     /**
-     * Overwrites the datasource url from your schema.prisma file
+     * Configure findUnique/findFirst to throw an error if the query returns null. 
+     *  * @example
+     * ```
+     * // Reject on both findUnique/findFirst
+     * rejectOnNotFound: true
+     * // Reject only on findFirst with a custom error
+     * rejectOnNotFound: { findFirst: (err) => new Error("Custom Error")}
+     * // Reject on user.findUnique with a custom error
+     * rejectOnNotFound: { findUnique: {User: (err) => new Error("User not found")}}
+     * ```
+     */
+    rejectOnNotFound?: RejectOnNotFound | RejectPerOperation
+    /**
+     * Overwrites the datasource url from your prisma.schema file
      */
     datasources?: Datasources
-
-    /**
-     * Overwrites the datasource url from your schema.prisma file
-     */
-    datasourceUrl?: string
 
     /**
      * @default "colorless"
@@ -768,6 +662,10 @@ export namespace Prisma {
      * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
      */
     log?: Array<LogLevel | LogDefinition>
+  }
+
+  export type Hooks = {
+    beforeRequest?: (options: { query: string, path: string[], rootField?: string, typeName?: string, document: any }) => any
   }
 
   /* Types for Logging */
@@ -800,10 +698,8 @@ export namespace Prisma {
 
   export type PrismaAction =
     | 'findUnique'
-    | 'findUniqueOrThrow'
     | 'findMany'
     | 'findFirst'
-    | 'findFirstOrThrow'
     | 'create'
     | 'createMany'
     | 'update'
@@ -817,10 +713,9 @@ export namespace Prisma {
     | 'count'
     | 'runCommandRaw'
     | 'findRaw'
-    | 'groupBy'
 
   /**
-   * These options are being passed into the middleware as "params"
+   * These options are being passed in to the middleware as "params"
    */
   export type MiddlewareParams = {
     model?: ModelName
@@ -835,16 +730,11 @@ export namespace Prisma {
    */
   export type Middleware<T = any> = (
     params: MiddlewareParams,
-    next: (params: MiddlewareParams) => $Utils.JsPromise<T>,
-  ) => $Utils.JsPromise<T>
+    next: (params: MiddlewareParams) => Promise<T>,
+  ) => Promise<T>
 
   // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
-
-  /**
-   * `PrismaClient` proxy available in interactive transactions.
-   */
-  export type TransactionClient = Omit<Prisma.DefaultPrismaClient, runtime.ITXClientDenyList>
 
   export type Datasource = {
     url?: string
@@ -863,6 +753,7 @@ export namespace Prisma {
   /**
    * Model Feedback
    */
+
 
   export type AggregateFeedback = {
     _count: FeedbackCountAggregateOutputType | null
@@ -921,34 +812,39 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type FeedbackAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackAggregateArgs = {
     /**
      * Filter which Feedback to aggregate.
-     */
+     * 
+    **/
     where?: FeedbackWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Feedbacks to fetch.
-     */
-    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+     * 
+    **/
+    orderBy?: Enumerable<FeedbackOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
-     */
+     * 
+    **/
     cursor?: FeedbackWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Take `±n` Feedbacks from the position of the cursor.
-     */
+     * 
+    **/
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Skip the first `n` Feedbacks.
-     */
+     * 
+    **/
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
@@ -993,10 +889,10 @@ export namespace Prisma {
 
 
 
-  export type FeedbackGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackGroupByArgs = {
     where?: FeedbackWhereInput
-    orderBy?: FeedbackOrderByWithAggregationInput | FeedbackOrderByWithAggregationInput[]
-    by: FeedbackScalarFieldEnum[] | FeedbackScalarFieldEnum
+    orderBy?: Enumerable<FeedbackOrderByWithAggregationInput>
+    by: Array<FeedbackScalarFieldEnum>
     having?: FeedbackScalarWhereWithAggregatesInput
     take?: number
     skip?: number
@@ -1006,6 +902,7 @@ export namespace Prisma {
     _min?: FeedbackMinAggregateInputType
     _max?: FeedbackMaxAggregateInputType
   }
+
 
   export type FeedbackGroupByOutputType = {
     id: number
@@ -1017,9 +914,9 @@ export namespace Prisma {
     _max: FeedbackMaxAggregateOutputType | null
   }
 
-  type GetFeedbackGroupByPayload<T extends FeedbackGroupByArgs> = Prisma.PrismaPromise<
+  type GetFeedbackGroupByPayload<T extends FeedbackGroupByArgs> = PrismaPromise<
     Array<
-      PickEnumerable<FeedbackGroupByOutputType, T['by']> &
+      PickArray<FeedbackGroupByOutputType, T['by']> &
         {
           [P in ((keyof T) & (keyof FeedbackGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
@@ -1031,37 +928,37 @@ export namespace Prisma {
     >
 
 
-  export type FeedbackSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    opinion?: boolean
-  }, ExtArgs["result"]["feedback"]>
-
-  export type FeedbackSelectScalar = {
+  export type FeedbackSelect = {
     id?: boolean
     opinion?: boolean
   }
 
+  export type FeedbackGetPayload<
+    S extends boolean | null | undefined | FeedbackArgs,
+    U = keyof S
+      > = S extends true
+        ? Feedback
+    : S extends undefined
+    ? never
+    : S extends FeedbackArgs | FeedbackFindManyArgs
+    ?'include' extends U
+    ? Feedback 
+    : 'select' extends U
+    ? {
+    [P in TrueKeys<S['select']>]:
+    P extends keyof Feedback ? Feedback[P] : never
+  } 
+    : Feedback
+  : Feedback
 
-  export type $FeedbackPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    name: "Feedback"
-    objects: {}
-    scalars: $Extensions.GetResult<{
-      id: number
-      opinion: string
-    }, ExtArgs["result"]["feedback"]>
-    composites: {}
-  }
 
-
-  type FeedbackGetPayload<S extends boolean | null | undefined | FeedbackDefaultArgs> = $Result.GetResult<Prisma.$FeedbackPayload, S>
-
-  type FeedbackCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+  type FeedbackCountArgs = Merge<
     Omit<FeedbackFindManyArgs, 'select' | 'include'> & {
       select?: FeedbackCountAggregateInputType | true
     }
+  >
 
-  export interface FeedbackDelegate<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Feedback'], meta: { name: 'Feedback' } }
+  export interface FeedbackDelegate<GlobalRejectSettings> {
     /**
      * Find zero or one Feedback that matches the filter.
      * @param {FeedbackFindUniqueArgs} args - Arguments to find a Feedback
@@ -1073,25 +970,9 @@ export namespace Prisma {
      *   }
      * })
     **/
-    findUnique<T extends FeedbackFindUniqueArgs<ExtArgs>>(
-      args: SelectSubset<T, FeedbackFindUniqueArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'findUnique'> | null, null, ExtArgs>
-
-    /**
-     * Find one Feedback that matches the filter or throw an error  with `error.code='P2025'` 
-     *     if no matches were found.
-     * @param {FeedbackFindUniqueOrThrowArgs} args - Arguments to find a Feedback
-     * @example
-     * // Get one Feedback
-     * const feedback = await prisma.feedback.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUniqueOrThrow<T extends FeedbackFindUniqueOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, FeedbackFindUniqueOrThrowArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'findUniqueOrThrow'>, never, ExtArgs>
+    findUnique<T extends FeedbackFindUniqueArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, FeedbackFindUniqueArgs>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Feedback'> extends True ? CheckSelect<T, Prisma__FeedbackClient<Feedback>, Prisma__FeedbackClient<FeedbackGetPayload<T>>> : CheckSelect<T, Prisma__FeedbackClient<Feedback | null >, Prisma__FeedbackClient<FeedbackGetPayload<T> | null >>
 
     /**
      * Find the first Feedback that matches the filter.
@@ -1106,27 +987,9 @@ export namespace Prisma {
      *   }
      * })
     **/
-    findFirst<T extends FeedbackFindFirstArgs<ExtArgs>>(
-      args?: SelectSubset<T, FeedbackFindFirstArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'findFirst'> | null, null, ExtArgs>
-
-    /**
-     * Find the first Feedback that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {FeedbackFindFirstOrThrowArgs} args - Arguments to find a Feedback
-     * @example
-     * // Get one Feedback
-     * const feedback = await prisma.feedback.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirstOrThrow<T extends FeedbackFindFirstOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, FeedbackFindFirstOrThrowArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'findFirstOrThrow'>, never, ExtArgs>
+    findFirst<T extends FeedbackFindFirstArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, FeedbackFindFirstArgs>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Feedback'> extends True ? CheckSelect<T, Prisma__FeedbackClient<Feedback>, Prisma__FeedbackClient<FeedbackGetPayload<T>>> : CheckSelect<T, Prisma__FeedbackClient<Feedback | null >, Prisma__FeedbackClient<FeedbackGetPayload<T> | null >>
 
     /**
      * Find zero or more Feedbacks that matches the filter.
@@ -1144,9 +1007,9 @@ export namespace Prisma {
      * const feedbackWithIdOnly = await prisma.feedback.findMany({ select: { id: true } })
      * 
     **/
-    findMany<T extends FeedbackFindManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, FeedbackFindManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'findMany'>>
+    findMany<T extends FeedbackFindManyArgs>(
+      args?: SelectSubset<T, FeedbackFindManyArgs>
+    ): CheckSelect<T, PrismaPromise<Array<Feedback>>, PrismaPromise<Array<FeedbackGetPayload<T>>>>
 
     /**
      * Create a Feedback.
@@ -1160,9 +1023,9 @@ export namespace Prisma {
      * })
      * 
     **/
-    create<T extends FeedbackCreateArgs<ExtArgs>>(
-      args: SelectSubset<T, FeedbackCreateArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'create'>, never, ExtArgs>
+    create<T extends FeedbackCreateArgs>(
+      args: SelectSubset<T, FeedbackCreateArgs>
+    ): CheckSelect<T, Prisma__FeedbackClient<Feedback>, Prisma__FeedbackClient<FeedbackGetPayload<T>>>
 
     /**
      * Create many Feedbacks.
@@ -1176,9 +1039,9 @@ export namespace Prisma {
      *     })
      *     
     **/
-    createMany<T extends FeedbackCreateManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, FeedbackCreateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends FeedbackCreateManyArgs>(
+      args?: SelectSubset<T, FeedbackCreateManyArgs>
+    ): PrismaPromise<BatchPayload>
 
     /**
      * Delete a Feedback.
@@ -1192,9 +1055,9 @@ export namespace Prisma {
      * })
      * 
     **/
-    delete<T extends FeedbackDeleteArgs<ExtArgs>>(
-      args: SelectSubset<T, FeedbackDeleteArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'delete'>, never, ExtArgs>
+    delete<T extends FeedbackDeleteArgs>(
+      args: SelectSubset<T, FeedbackDeleteArgs>
+    ): CheckSelect<T, Prisma__FeedbackClient<Feedback>, Prisma__FeedbackClient<FeedbackGetPayload<T>>>
 
     /**
      * Update one Feedback.
@@ -1211,9 +1074,9 @@ export namespace Prisma {
      * })
      * 
     **/
-    update<T extends FeedbackUpdateArgs<ExtArgs>>(
-      args: SelectSubset<T, FeedbackUpdateArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'update'>, never, ExtArgs>
+    update<T extends FeedbackUpdateArgs>(
+      args: SelectSubset<T, FeedbackUpdateArgs>
+    ): CheckSelect<T, Prisma__FeedbackClient<Feedback>, Prisma__FeedbackClient<FeedbackGetPayload<T>>>
 
     /**
      * Delete zero or more Feedbacks.
@@ -1227,9 +1090,9 @@ export namespace Prisma {
      * })
      * 
     **/
-    deleteMany<T extends FeedbackDeleteManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, FeedbackDeleteManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends FeedbackDeleteManyArgs>(
+      args?: SelectSubset<T, FeedbackDeleteManyArgs>
+    ): PrismaPromise<BatchPayload>
 
     /**
      * Update zero or more Feedbacks.
@@ -1248,9 +1111,9 @@ export namespace Prisma {
      * })
      * 
     **/
-    updateMany<T extends FeedbackUpdateManyArgs<ExtArgs>>(
-      args: SelectSubset<T, FeedbackUpdateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends FeedbackUpdateManyArgs>(
+      args: SelectSubset<T, FeedbackUpdateManyArgs>
+    ): PrismaPromise<BatchPayload>
 
     /**
      * Create or update one Feedback.
@@ -1269,9 +1132,9 @@ export namespace Prisma {
      *   }
      * })
     **/
-    upsert<T extends FeedbackUpsertArgs<ExtArgs>>(
-      args: SelectSubset<T, FeedbackUpsertArgs<ExtArgs>>
-    ): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, 'upsert'>, never, ExtArgs>
+    upsert<T extends FeedbackUpsertArgs>(
+      args: SelectSubset<T, FeedbackUpsertArgs>
+    ): CheckSelect<T, Prisma__FeedbackClient<Feedback>, Prisma__FeedbackClient<FeedbackGetPayload<T>>>
 
     /**
      * Count the number of Feedbacks.
@@ -1288,8 +1151,8 @@ export namespace Prisma {
     **/
     count<T extends FeedbackCountArgs>(
       args?: Subset<T, FeedbackCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
+    ): PrismaPromise<
+      T extends _Record<'select', any>
         ? T['select'] extends true
           ? number
           : GetScalarType<T['select'], FeedbackCountAggregateOutputType>
@@ -1320,7 +1183,7 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends FeedbackAggregateArgs>(args: Subset<T, FeedbackAggregateArgs>): Prisma.PrismaPromise<GetFeedbackAggregateType<T>>
+    aggregate<T extends FeedbackAggregateArgs>(args: Subset<T, FeedbackAggregateArgs>): PrismaPromise<GetFeedbackAggregateType<T>>
 
     /**
      * Group by Feedback.
@@ -1350,7 +1213,7 @@ export namespace Prisma {
         ? { orderBy: FeedbackGroupByArgs['orderBy'] }
         : { orderBy?: FeedbackGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByFields extends TupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
       HavingFields extends GetHavingFields<T['having']>,
       HavingValid extends Has<ByFields, HavingFields>,
@@ -1397,11 +1260,7 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, FeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Feedback model
-   */
-  readonly fields: FeedbackFieldRefs;
+    >(args: SubsetIntersection<T, FeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeedbackGroupByPayload<T> : PrismaPromise<InputErrors>
   }
 
   /**
@@ -1410,71 +1269,67 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__FeedbackClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: 'PrismaPromise';
+  export class Prisma__FeedbackClient<T> implements PrismaPromise<T> {
+    [prisma]: true;
+    private readonly _dmmf;
+    private readonly _fetcher;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    constructor(_dmmf: runtime.DMMFClass, _fetcher: PrismaClientFetcher, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+    readonly [Symbol.toStringTag]: 'PrismaClientPromise';
 
 
+    private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
      * @param onrejected The callback to execute when the Promise is rejected.
      * @returns A Promise for the completion of which ever callback is executed.
      */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>;
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
     /**
      * Attaches a callback for only the rejection of the Promise.
      * @param onrejected The callback to execute when the Promise is rejected.
      * @returns A Promise for the completion of the callback.
      */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>;
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
     /**
      * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
      * resolved value cannot be modified from the callback.
      * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
      * @returns A Promise for the completion of the callback.
      */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>;
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
   }
-
-
-
-  /**
-   * Fields of the Feedback model
-   */ 
-  interface FeedbackFieldRefs {
-    readonly id: FieldRef<"Feedback", 'Int'>
-    readonly opinion: FieldRef<"Feedback", 'String'>
-  }
-    
 
   // Custom InputTypes
 
   /**
    * Feedback findUnique
    */
-  export type FeedbackFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackFindUniqueArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
+    /**
+     * Throw an Error if a Feedback can't be found
+     * 
+    **/
+    rejectOnNotFound?: RejectOnNotFound
     /**
      * Filter, which Feedback to fetch.
-     */
-    where: FeedbackWhereUniqueInput
-  }
-
-
-  /**
-   * Feedback findUniqueOrThrow
-   */
-  export type FeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
-    /**
-     * Filter, which Feedback to fetch.
-     */
+     * 
+    **/
     where: FeedbackWhereUniqueInput
   }
 
@@ -1482,144 +1337,119 @@ export namespace Prisma {
   /**
    * Feedback findFirst
    */
-  export type FeedbackFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackFindFirstArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
+    /**
+     * Throw an Error if a Feedback can't be found
+     * 
+    **/
+    rejectOnNotFound?: RejectOnNotFound
     /**
      * Filter, which Feedback to fetch.
-     */
+     * 
+    **/
     where?: FeedbackWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Feedbacks to fetch.
-     */
-    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+     * 
+    **/
+    orderBy?: Enumerable<FeedbackOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for searching for Feedbacks.
-     */
+     * 
+    **/
     cursor?: FeedbackWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Take `±n` Feedbacks from the position of the cursor.
-     */
+     * 
+    **/
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Skip the first `n` Feedbacks.
-     */
+     * 
+    **/
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
      * Filter by unique combinations of Feedbacks.
-     */
-    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
-  }
-
-
-  /**
-   * Feedback findFirstOrThrow
-   */
-  export type FeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
-    /**
-     * Filter, which Feedback to fetch.
-     */
-    where?: FeedbackWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Feedbacks to fetch.
-     */
-    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Feedbacks.
-     */
-    cursor?: FeedbackWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Feedbacks from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Feedbacks.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Feedbacks.
-     */
-    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+    **/
+    distinct?: Enumerable<FeedbackScalarFieldEnum>
   }
 
 
   /**
    * Feedback findMany
    */
-  export type FeedbackFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackFindManyArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
     /**
      * Filter, which Feedbacks to fetch.
-     */
+     * 
+    **/
     where?: FeedbackWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
      * Determine the order of Feedbacks to fetch.
-     */
-    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+     * 
+    **/
+    orderBy?: Enumerable<FeedbackOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the position for listing Feedbacks.
-     */
+     * 
+    **/
     cursor?: FeedbackWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Take `±n` Feedbacks from the position of the cursor.
-     */
+     * 
+    **/
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
      * Skip the first `n` Feedbacks.
-     */
+     * 
+    **/
     skip?: number
-    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+    distinct?: Enumerable<FeedbackScalarFieldEnum>
   }
 
 
   /**
    * Feedback create
    */
-  export type FeedbackCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackCreateArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
     /**
      * The data needed to create a Feedback.
-     */
+     * 
+    **/
     data: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
   }
 
@@ -1627,11 +1457,12 @@ export namespace Prisma {
   /**
    * Feedback createMany
    */
-  export type FeedbackCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackCreateManyArgs = {
     /**
      * The data used to create many Feedbacks.
-     */
-    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+     * 
+    **/
+    data: Enumerable<FeedbackCreateManyInput>
     skipDuplicates?: boolean
   }
 
@@ -1639,18 +1470,21 @@ export namespace Prisma {
   /**
    * Feedback update
    */
-  export type FeedbackUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackUpdateArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
     /**
      * The data needed to update a Feedback.
-     */
+     * 
+    **/
     data: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
     /**
      * Choose, which Feedback to update.
-     */
+     * 
+    **/
     where: FeedbackWhereUniqueInput
   }
 
@@ -1658,14 +1492,16 @@ export namespace Prisma {
   /**
    * Feedback updateMany
    */
-  export type FeedbackUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackUpdateManyArgs = {
     /**
      * The data used to update Feedbacks.
-     */
+     * 
+    **/
     data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyInput>
     /**
      * Filter which Feedbacks to update
-     */
+     * 
+    **/
     where?: FeedbackWhereInput
   }
 
@@ -1673,22 +1509,26 @@ export namespace Prisma {
   /**
    * Feedback upsert
    */
-  export type FeedbackUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackUpsertArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
     /**
      * The filter to search for the Feedback to update in case it exists.
-     */
+     * 
+    **/
     where: FeedbackWhereUniqueInput
     /**
      * In case the Feedback found by the `where` argument doesn't exist, create a new Feedback with this data.
-     */
+     * 
+    **/
     create: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
     /**
      * In case the Feedback was found with the provided `where` argument, update it with this data.
-     */
+     * 
+    **/
     update: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
   }
 
@@ -1696,14 +1536,16 @@ export namespace Prisma {
   /**
    * Feedback delete
    */
-  export type FeedbackDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackDeleteArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
     /**
      * Filter which Feedback to delete.
-     */
+     * 
+    **/
     where: FeedbackWhereUniqueInput
   }
 
@@ -1711,10 +1553,11 @@ export namespace Prisma {
   /**
    * Feedback deleteMany
    */
-  export type FeedbackDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackDeleteManyArgs = {
     /**
      * Filter which Feedbacks to delete
-     */
+     * 
+    **/
     where?: FeedbackWhereInput
   }
 
@@ -1722,11 +1565,12 @@ export namespace Prisma {
   /**
    * Feedback without action
    */
-  export type FeedbackDefaultArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FeedbackArgs = {
     /**
      * Select specific fields to fetch from the Feedback
-     */
-    select?: FeedbackSelect<ExtArgs> | null
+     * 
+    **/
+    select?: FeedbackSelect | null
   }
 
 
@@ -1735,15 +1579,8 @@ export namespace Prisma {
    * Enums
    */
 
-  export const TransactionIsolationLevel: {
-    ReadUncommitted: 'ReadUncommitted',
-    ReadCommitted: 'ReadCommitted',
-    RepeatableRead: 'RepeatableRead',
-    Serializable: 'Serializable'
-  };
-
-  export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
+  // Based on
+  // https://github.com/microsoft/TypeScript/issues/3192#issuecomment-261720275
 
   export const FeedbackScalarFieldEnum: {
     id: 'id',
@@ -1770,61 +1607,16 @@ export namespace Prisma {
 
 
   /**
-   * Field references 
-   */
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'String'
-   */
-  export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-    
-
-
-  /**
-   * Reference to a field of type 'String[]'
-   */
-  export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-  /**
    * Deep Input Types
    */
 
 
   export type FeedbackWhereInput = {
-    AND?: FeedbackWhereInput | FeedbackWhereInput[]
-    OR?: FeedbackWhereInput[]
-    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
-    id?: IntFilter<"Feedback"> | number
-    opinion?: StringFilter<"Feedback"> | string
+    AND?: Enumerable<FeedbackWhereInput>
+    OR?: Enumerable<FeedbackWhereInput>
+    NOT?: Enumerable<FeedbackWhereInput>
+    id?: IntFilter | number
+    opinion?: StringFilter | string
   }
 
   export type FeedbackOrderByWithRelationInput = {
@@ -1832,13 +1624,9 @@ export namespace Prisma {
     opinion?: SortOrder
   }
 
-  export type FeedbackWhereUniqueInput = Prisma.AtLeast<{
+  export type FeedbackWhereUniqueInput = {
     id?: number
-    AND?: FeedbackWhereInput | FeedbackWhereInput[]
-    OR?: FeedbackWhereInput[]
-    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
-    opinion?: StringFilter<"Feedback"> | string
-  }, "id">
+  }
 
   export type FeedbackOrderByWithAggregationInput = {
     id?: SortOrder
@@ -1851,11 +1639,11 @@ export namespace Prisma {
   }
 
   export type FeedbackScalarWhereWithAggregatesInput = {
-    AND?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
-    OR?: FeedbackScalarWhereWithAggregatesInput[]
-    NOT?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"Feedback"> | number
-    opinion?: StringWithAggregatesFilter<"Feedback"> | string
+    AND?: Enumerable<FeedbackScalarWhereWithAggregatesInput>
+    OR?: Enumerable<FeedbackScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<FeedbackScalarWhereWithAggregatesInput>
+    id?: IntWithAggregatesFilter | number
+    opinion?: StringWithAggregatesFilter | string
   }
 
   export type FeedbackCreateInput = {
@@ -1890,30 +1678,30 @@ export namespace Prisma {
     opinion?: StringFieldUpdateOperationsInput | string
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+  export type IntFilter = {
+    equals?: number
+    in?: Enumerable<number>
+    notIn?: Enumerable<number>
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntFilter | number
   }
 
-  export type StringFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
+  export type StringFilter = {
+    equals?: string
+    in?: Enumerable<string>
+    notIn?: Enumerable<string>
+    lt?: string
+    lte?: string
+    gt?: string
+    gte?: string
+    contains?: string
+    startsWith?: string
+    endsWith?: string
     mode?: QueryMode
-    not?: NestedStringFilter<$PrismaModel> | string
+    not?: NestedStringFilter | string
   }
 
   export type FeedbackCountOrderByAggregateInput = {
@@ -1939,38 +1727,38 @@ export namespace Prisma {
     id?: SortOrder
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+  export type IntWithAggregatesFilter = {
+    equals?: number
+    in?: Enumerable<number>
+    notIn?: Enumerable<number>
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntWithAggregatesFilter | number
+    _count?: NestedIntFilter
+    _avg?: NestedFloatFilter
+    _sum?: NestedIntFilter
+    _min?: NestedIntFilter
+    _max?: NestedIntFilter
   }
 
-  export type StringWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
+  export type StringWithAggregatesFilter = {
+    equals?: string
+    in?: Enumerable<string>
+    notIn?: Enumerable<string>
+    lt?: string
+    lte?: string
+    gt?: string
+    gte?: string
+    contains?: string
+    startsWith?: string
+    endsWith?: string
     mode?: QueryMode
-    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
+    not?: NestedStringWithAggregatesFilter | string
+    _count?: NestedIntFilter
+    _min?: NestedStringFilter
+    _max?: NestedStringFilter
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -1985,84 +1773,76 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+  export type NestedIntFilter = {
+    equals?: number
+    in?: Enumerable<number>
+    notIn?: Enumerable<number>
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntFilter | number
   }
 
-  export type NestedStringFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringFilter<$PrismaModel> | string
+  export type NestedStringFilter = {
+    equals?: string
+    in?: Enumerable<string>
+    notIn?: Enumerable<string>
+    lt?: string
+    lte?: string
+    gt?: string
+    gte?: string
+    contains?: string
+    startsWith?: string
+    endsWith?: string
+    not?: NestedStringFilter | string
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+  export type NestedIntWithAggregatesFilter = {
+    equals?: number
+    in?: Enumerable<number>
+    notIn?: Enumerable<number>
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntWithAggregatesFilter | number
+    _count?: NestedIntFilter
+    _avg?: NestedFloatFilter
+    _sum?: NestedIntFilter
+    _min?: NestedIntFilter
+    _max?: NestedIntFilter
   }
 
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
+  export type NestedFloatFilter = {
+    equals?: number
+    in?: Enumerable<number>
+    notIn?: Enumerable<number>
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedFloatFilter | number
   }
 
-  export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
+  export type NestedStringWithAggregatesFilter = {
+    equals?: string
+    in?: Enumerable<string>
+    notIn?: Enumerable<string>
+    lt?: string
+    lte?: string
+    gt?: string
+    gte?: string
+    contains?: string
+    startsWith?: string
+    endsWith?: string
+    not?: NestedStringWithAggregatesFilter | string
+    _count?: NestedIntFilter
+    _min?: NestedStringFilter
+    _max?: NestedStringFilter
   }
 
 
-
-  /**
-   * Aliases for legacy arg types
-   */
-    /**
-     * @deprecated Use FeedbackDefaultArgs instead
-     */
-    export type FeedbackArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = FeedbackDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
@@ -2075,5 +1855,5 @@ export namespace Prisma {
   /**
    * DMMF
    */
-  export const dmmf: runtime.BaseDMMF
+  export const dmmf: runtime.DMMF.Document;
 }
