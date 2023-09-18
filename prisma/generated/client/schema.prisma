@@ -1,7 +1,7 @@
 // Data source
 datasource db {
   provider = "postgresql"
-  url      = env("https://backend-fwd1.onrender.com")
+  url      = env("postgres://feed:123@loalhost:5432/feedbackdb")
 }
 
 // Generator

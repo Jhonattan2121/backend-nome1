@@ -31,11 +31,11 @@ exports.$Enums = {}
 
 /**
  * Prisma Client JS version: 5.3.1
- * Query Engine version: 61e140623197a131c2a6189271ffee05a7aa9a59
+ * Query Engine version: 461d6a05159055555eb7dfb337c9fb271cbd4d7e
  */
 Prisma.prismaVersion = {
   client: "5.3.1",
-  engine: "61e140623197a131c2a6189271ffee05a7aa9a59"
+  engine: "461d6a05159055555eb7dfb337c9fb271cbd4d7e"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -123,13 +123,7 @@ const config = {
     "config": {
       "engineType": "library"
     },
-    "binaryTargets": [
-      {
-        "fromEnvVar": null,
-        "value": "windows",
-        "native": true
-      }
-    ],
+    "binaryTargets": [],
     "previewFeatures": [],
     "isCustomOutput": true
   },
@@ -138,23 +132,21 @@ const config = {
   },
   "relativePath": "../..",
   "clientVersion": "5.3.1",
-  "engineVersion": "61e140623197a131c2a6189271ffee05a7aa9a59",
+  "engineVersion": "461d6a05159055555eb7dfb337c9fb271cbd4d7e",
   "datasourceNames": [
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
-        "fromEnvVar": "https://backend-fwd1.onrender.com",
+        "fromEnvVar": "postgres://feed:123@loalhost:5432/feedbackdb",
         "value": null
       }
     }
   },
-  "inlineSchema": "Ly8gRGF0YSBzb3VyY2UNCmRhdGFzb3VyY2UgZGIgew0KICBwcm92aWRlciA9ICJwb3N0Z3Jlc3FsIg0KICB1cmwgICAgICA9IGVudigiaHR0cHM6Ly9iYWNrZW5kLWZ3ZDEub25yZW5kZXIuY29tIikNCn0NCg0KLy8gR2VuZXJhdG9yDQpnZW5lcmF0b3IgY2xpZW50IHsNCiAgcHJvdmlkZXIgPSAicHJpc21hLWNsaWVudC1qcyINCiAgb3V0cHV0ICAgPSAiLi9nZW5lcmF0ZWQvY2xpZW50Ig0KfQ0KDQptb2RlbCBGZWVkYmFjayB7DQogIGlkICAgICAgSW50ICAgICAgQGlkIEBkZWZhdWx0KGF1dG9pbmNyZW1lbnQoKSkNCiAgb3BpbmlvbiBTdHJpbmcNCn0NCg==",
-  "inlineSchemaHash": "4d003a6571c649be4fe1abd488a3d788cc3a8e397e365aef14edc6385adfcfdb",
-  "noEngine": false
+  "inlineSchema": "Ly8gRGF0YSBzb3VyY2UNCmRhdGFzb3VyY2UgZGIgew0KICBwcm92aWRlciA9ICJwb3N0Z3Jlc3FsIg0KICB1cmwgICAgICA9IGVudigicG9zdGdyZXM6Ly9mZWVkOjEyM0Bsb2FsaG9zdDo1NDMyL2ZlZWRiYWNrZGIiKQ0KfQ0KDQovLyBHZW5lcmF0b3INCmdlbmVyYXRvciBjbGllbnQgew0KICBwcm92aWRlciA9ICJwcmlzbWEtY2xpZW50LWpzIg0KICBvdXRwdXQgICA9ICIuL2dlbmVyYXRlZC9jbGllbnQiDQp9DQoNCm1vZGVsIEZlZWRiYWNrIHsNCiAgaWQgICAgICBJbnQgICAgICBAaWQgQGRlZmF1bHQoYXV0b2luY3JlbWVudCgpKQ0KICBvcGluaW9uIFN0cmluZw0KfQ0K",
+  "inlineSchemaHash": "107225e0806386be6fa55b019c2099c4dc9c5e98a6c6540172946ccd61ff7ac1"
 }
 
 const fs = require('fs')
