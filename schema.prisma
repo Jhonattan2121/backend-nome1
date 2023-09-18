@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("https://backend-fwd1.onrender.com")
+}
+
+model Feedback {
+  id      Int      @id @default(autoincrement())
+  opinion String
+}
