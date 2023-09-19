@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+    output   = "./generate/client" 
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Feedback {
+  id        Int        @id @default(autoincrement())
+  opinion   String
+  createdAt DateTime   @default(now())
+}
