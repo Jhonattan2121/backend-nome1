@@ -3,6 +3,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
 const axios = require('axios');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 app.use(express.json());
 app.use(
@@ -10,29 +12,21 @@ app.use(
     origin: 'https://projeto-front-end-login-e-cadastro.vercel.app',
   })
 );
+async function saveFeedback(opinion) {
+  return prisma.feedback.create({
+    data: {
+      opinion,
+    },
+  });
+}
 
 app.post('/api/feedback', async (req, res) => {
   try {
     const { opinion } = req.body;
-
-    const response = await axios.post(
-      beekeeperUrl,
-      { opinion },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${beekeeperApiKey}`,
-        },
-      }
-    );
-
-    if (response.status === 201) {
-      res.status(200).json({ message: 'Feedback saved successfully' });
-    } else {
-      res.status(response.status).json({ message: 'Failed to save feedback' });
-    }
+    const savedFeedback = await saveFeedback(opinion);
+    res.status(201).json(savedFeedback);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Erro ao salvar o feedback:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
