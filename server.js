@@ -5,22 +5,18 @@ const cors = require('cors');
 app.use(express.json());
 
 app.use(cors({
-    origin: 'conectaamigos.vercel.app',
-  }));
-// Simule um banco de dados de usuários (você deve usar um banco de dados real)
+  origin: 'https://conectaamigos.vercel.app',
+}));
 const users = [];
 
-// Rota de registro de usuário
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
 
-  // Verifique se o usuário já existe
   const existingUser = users.find((user) => user.username === username);
   if (existingUser) {
     return res.status(400).json({ message: 'Usuário já registrado' });
   }
 
-  // Crie um novo usuário (você deve criptografar a senha antes de armazená-la)
   const newUser = { username, password };
   users.push(newUser);
 
