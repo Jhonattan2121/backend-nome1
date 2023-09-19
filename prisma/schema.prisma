@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-    output   = "./generated/client" // Especifique o diretório de saída do Prisma Client
 
 }
 
