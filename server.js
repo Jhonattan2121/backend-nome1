@@ -5,7 +5,7 @@ const cors = require('cors');
 app.use(express.json());
 
 app.use(cors({
-    origin: 'https://projeto-front-end-login-e-cadastro.vercel.app',
+    origin: 'conectaamigos.vercel.app',
   }));
 // Simule um banco de dados de usuários (você deve usar um banco de dados real)
 const users = [];
