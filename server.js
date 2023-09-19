@@ -12,36 +12,22 @@ app.use(
 );
 
 const pool = new Pool({
-  user: 'conta',
+  user: 'postgres',
   host: 'localhost',
   database: 'mydb',
   password: '123',
   port: 5432,
 });
 
-app.get('/api/users', async (req, res) => {
-  try {
-    const { rows } = await pool.query('SELECT * FROM users');
-    res.json(rows);
-  } catch (error) {
-    console.error('Erro ao recuperar dados de usuários:', error);
-    res.status(500).json({ error: 'Erro ao recuperar dados de usuários' });
-  }
-});
-
-app.post('/api/register',  async (req, res) => {
+app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
-
   try {
-    await pool.query(
-      'INSERT INTO users (username, password, email) VALUES ($1, $2, $3)',
-      [username, password, email]
-    );
-
-    res.status(201).json({ message: 'Usuário registrado com sucesso' });
+    const query = 'INSERT INTO users (username, password, email) VALUES ($1, $2, $3)';
+    await pool.query(query, [username, password, email]);
+    res.status(201).send('Usuário registrado com sucesso.');
   } catch (error) {
-    console.error('Erro ao registrar o usuário:', error);
-    res.status(500).json({ message: 'Ocorreu um erro ao registrar o usuário' });
+    console.error('Erro ao registrar usuário:', error);
+    res.status(500).send('Ocorreu um erro ao registrar o usuário.');
   }
 });
 
