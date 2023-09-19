@@ -2,31 +2,12 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
-const { PrismaClient } = require('./prisma/');
-const prisma = new PrismaClient();
 app.use(express.json());
 app.use(
   cors({
     origin: 'https://projeto-front-end-login-e-cadastro.vercel.app',
   })
 );
-const beekeeper = require('beekeeper');
-
-const beek = beekeeper();
-
-// Configurar rota para receber opiniões
-beek.route('/api/feedbacks', {
-  methods: ['GET'],
-  handler: async (req, res) => {
-    try {
-      const feedbacks = await prisma.feedback.findMany();
-      res.status(200).json(feedbacks);
-    } catch (error) {
-      console.error('Erro ao buscar feedbacks:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-  },
-});
 
 app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
