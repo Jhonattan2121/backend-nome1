@@ -2,33 +2,40 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require('cors');
-const axios = require('axios');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-
 app.use(express.json());
 app.use(
   cors({
     origin: 'https://projeto-front-end-login-e-cadastro.vercel.app',
   })
 );
-async function saveFeedback(opinion) {
-  return prisma.feedback.create({
-    data: {
-      opinion,
-    },
-  });
-}
+const beekeeper = require('beekeeper');
 
-app.post('/api/feedback', async (req, res) => {
-  try {
+const beek = beekeeper();
+
+// Configurar rota para receber opiniões
+beek.route('/api/feedback', {
+  methods: ['POST'],
+  handler: async (req, res) => {
     const { opinion } = req.body;
-    const savedFeedback = await saveFeedback(opinion);
-    res.status(201).json(savedFeedback);
-  } catch (error) {
-    console.error('Erro ao salvar o feedback:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+
+    try {
+      // Salvar a opinião no banco de dados usando Prisma
+      const feedback = await prisma.feedback.create({
+        data: {
+          opinion,
+        },
+      });
+
+      // Responder com sucesso
+      res.status(201).json(feedback);
+    } catch (error) {
+      // Lidar com erros
+      console.error('Erro ao salvar a opinião:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
 });
 
 app.post('/api/register', (req, res) => {
