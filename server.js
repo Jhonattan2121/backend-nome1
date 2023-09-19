@@ -30,12 +30,12 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/register', async (req, res) => {
-  const { username, password, email, firstName, lastName } = req.body;
+  const { username, password, email } = req.body;
 
   try {
     await pool.query(
       'INSERT INTO users (username, password, email, ) VALUES ($1, $2, $3)',
-      [username, password, email, firstName, lastName]
+      [username, password, email]
     );
 
     res.status(201).json({ message: 'Usuário registrado com sucesso' });
