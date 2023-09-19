@@ -15,24 +15,14 @@ const beekeeper = require('beekeeper');
 const beek = beekeeper();
 
 // Configurar rota para receber opiniões
-beek.route('/api/feedback', {
-  methods: ['POST'],
+beek.route('/api/feedbacks', {
+  methods: ['GET'],
   handler: async (req, res) => {
-    const { opinion } = req.body;
-
     try {
-      // Salvar a opinião no banco de dados usando Prisma
-      const feedback = await prisma.feedback.create({
-        data: {
-          opinion,
-        },
-      });
-
-      // Responder com sucesso
-      res.status(201).json(feedback);
+      const feedbacks = await prisma.feedback.findMany();
+      res.status(200).json(feedbacks);
     } catch (error) {
-      // Lidar com erros
-      console.error('Erro ao salvar a opinião:', error);
+      console.error('Erro ao buscar feedbacks:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
