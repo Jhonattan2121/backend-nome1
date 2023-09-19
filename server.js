@@ -34,7 +34,7 @@ app.post('/api/register', async (req, res) => {
 
   try {
     await pool.query(
-      'INSERT INTO users (username, password, email, ) VALUES ($1, $2, $3)',
+      'INSERT INTO users (username, password, email, ) VALUES ($1, $2, $3)'
       [username, password, email]
     );
 
