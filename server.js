@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { PrismaClient } = require('./prisma/generated/client');
+const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
