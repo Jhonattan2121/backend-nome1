@@ -22,5 +22,8 @@
     "nodemailer": "^6.9.5",
     "pg-promise": "^11.5.4",
     "uuid": "^9.0.1"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }
