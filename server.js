@@ -10,6 +10,25 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
+async function createUser(email, password, photourl) {
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        photourl,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Erro ao criar usuário:', error);
+    throw error;
+  }
+}
+
 app.post('/signup', async (req, res) => {
   try {
     const { email, password, photourl } = req.body;
@@ -20,25 +39,8 @@ app.post('/signup', async (req, res) => {
         .json({ error: 'Email e senha são obrigatórios.' });
     }
 
-    // Verifique se o usuário com o email fornecido já existe
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email já cadastrado.' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        id: uuidv4(), // Use UUID para gerar um ID único
-        email,
-        password: hashedPassword,
-        photourl,
-      },
-    });
+    // Chame a função createUser para criar um novo usuário
+    const user = await createUser(email, password, photourl);
 
     res.status(201).json({ user });
   } catch (error) {
