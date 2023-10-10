@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: 'https://conectaamigos.vercel.app',
+      url: process.env.DATABASE_URL, 
     },
   },
 });

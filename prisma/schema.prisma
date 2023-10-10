@@ -5,8 +5,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("https://conectaamigos.vercel.app")
+  url      = env("DATABASE_URL") 
 }
+
 
 model User {
   id       String    @id
