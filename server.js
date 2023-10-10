@@ -85,21 +85,30 @@ app.get('/user/:userId', async (req, res) => {
     const userId = req.params.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: userId }, // Procura um usuário pelo ID
+      where: { id: userId }, 
     });
 
     if (!user) {
-      // Se o usuário não for encontrado, retorne um status 404 (Not Found).
       return res.status(404).json({ error: 'Perfil do usuário não encontrado.' });
     }
 
-    // Envie os dados do perfil como resposta.
     res.status(200).json(user);
   } catch (error) {
     console.error(`Erro ao buscar perfil do usuário: ${error.message}`);
     res.status(500).json({ error: 'Erro ao buscar perfil do usuário.' });
   }
 });
+
+app.get('/users', async (req, res) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar usuários.' });
+  }
+});
+
 
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
