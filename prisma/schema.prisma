@@ -1,14 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/client" // Onde os arquivos do Prisma Client serão gerados
 }
 
+// Configurações do banco de dados
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db" // Substitua pelo caminho do seu arquivo SQLite
 }
+
 
 
 model User {
@@ -18,14 +18,5 @@ model User {
   photourl String?
   createdAt DateTime @default(now()) @map("created_at")
   name     String?
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean  @default(false)
-  
-  authorId  Int?
 }
 
