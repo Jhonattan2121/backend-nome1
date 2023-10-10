@@ -10,7 +10,7 @@ require('dotenv').config();
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL,
+      url: "postgresql://jhonattan:123@backend-fwd1.onrender.com:5432/postgres",
     },
   },
 });
