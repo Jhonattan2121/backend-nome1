@@ -5,7 +5,6 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "react-scripts build",
     "prisma:generate": "npx prisma generate",
     "start": "yarn run prisma:generate && node server.js"
   },
