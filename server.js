@@ -1,26 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
-const generateUniqueId = require('generate-unique-id');
-
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+
 const prisma = new PrismaClient();
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
 
-async function createUser(id, email, password, photourl) {
+async function createUser(email, password, photourl) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
-        id,
         email,
         password: hashedPassword,
         photourl,
-      }
+      },
     });
 
     return user;
@@ -40,10 +39,7 @@ app.post('/signup', async (req, res) => {
         .json({ error: 'Email e senha são obrigatórios.' });
     }
 
-    // Generate a unique ID for the user
-    const id = generateUniqueId(); // You need to implement a function to generate a unique ID
-
-    const user = await createUser(id, email, password, photourl);
+    const user = await createUser(email, password, photourl);
 
     res.status(201).json({ user });
   } catch (error) {
@@ -51,7 +47,6 @@ app.post('/signup', async (req, res) => {
     res.status(500).json({ error: 'Erro no cadastro de usuário.' });
   }
 });
-
 
 app.post('/login', async (req, res) => {
   try {
@@ -90,7 +85,7 @@ app.get('/user/:userId', async (req, res) => {
     const userId = req.params.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: userId }, 
+      where: { id: userId },
     });
 
     if (!user) {
