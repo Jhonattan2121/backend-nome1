@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL, 
+      url: 'postgresql://jhonattan:123@localhost:10000/postgres', 
     },
   },
 });
