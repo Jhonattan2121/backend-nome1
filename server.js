@@ -40,8 +40,24 @@ app.post('/signup', async (req, res) => {
         .json({ error: 'Email e senha são obrigatórios.' });
     }
 
-    // Chame a função createUser para criar um novo usuário
-    const user = await createUser(email, password, photourl);
+    // Verifique se o usuário com o email fornecido já existe
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email já cadastrado.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        photourl,
+      },
+    });
 
     res.status(201).json({ user });
   } catch (error) {
