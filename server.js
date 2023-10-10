@@ -90,7 +90,7 @@ app.get('/user/:userId', async (req, res) => {
     const userId = req.params.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: Number(userId) },
+      where: { id: userId }, 
     });
 
     if (!user) {
