@@ -1,6 +1,8 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/client" // Onde os arquivos do Prisma Client serão gerados
+  output   = "./generated/client" 
+    binaryTargets = ["native", "debian-openssl-1.1.x"] // Adicione esta linha
+
 }
 
 // Configurações do banco de dados

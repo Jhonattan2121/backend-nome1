@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": " node server.js"
+    "generate": "npx prisma generate",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -18,11 +19,9 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "generate-unique-id": "^2.0.3",
-    "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.5",
     "pg-promise": "^11.5.4",
-    "prisma": "^5.4.2",
     "typescript": "^5.2.2",
     "uuid": "^9.0.1"
   },
