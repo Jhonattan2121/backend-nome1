@@ -3,23 +3,17 @@ const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
 const prisma = new PrismaClient();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-
-async function createUser({ email, password, photourl }) {
+async function createUser(email, password, photourl) {
   try {
-    const id = uuidv4(); // Gere um novo UUID para o usuário
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await prisma.user.create({
       data: {
-        id,
         email,
-        password: hashedPassword,
+        password,
         photourl,
       },
     });
@@ -50,7 +44,7 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Email já cadastrado.' });
     }
 
-    const user = await createUser({ email, password, photourl });
+    const user = await createUser(email, password, photourl);
 
     res.status(201).json({ user });
   } catch (error) {
@@ -91,13 +85,12 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
 app.get('/user/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: userId }, 
+      where: { id: Number(userId) },
     });
 
     if (!user) {
@@ -120,7 +113,6 @@ app.get('/users', async (req, res) => {
     res.status(500).json({ error: 'Erro ao buscar usuários.' });
   }
 });
-
 
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
