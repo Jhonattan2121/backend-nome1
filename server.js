@@ -10,6 +10,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const corsOptions = {
+  origin: 'https://conectaamigos.vercel.app', 
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+};
+
+app.use(cors(corsOptions));
+
 app.post('/signup', async (req, res) => {
   try {
     const { email, password, photourl } = req.body;
