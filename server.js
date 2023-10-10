@@ -4,14 +4,17 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+require('dotenv').config();
+
 
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: 'postgresql://jhonattan:123@localhost:10000/postgres', 
+      url: process.env.DATABASE_URL,
     },
   },
 });
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
