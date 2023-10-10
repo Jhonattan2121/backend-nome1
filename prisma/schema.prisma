@@ -12,7 +12,7 @@ datasource db {
 
 
 model User {
-  id    Int     @id @default(autoincrement())
+  id       String    @id @default(uuid()) // Gera automaticamente um UUID
   email    String    @unique
   password String
   photourl String?
