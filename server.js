@@ -10,8 +10,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-async function createUser(id, email, password, photourl) {
+async function createUser({ email, password, photourl }) {
   try {
+    const id = uuidv4(); // Gere um novo UUID para o usuário
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -42,23 +43,14 @@ app.post('/signup', async (req, res) => {
 
     // Verifique se o usuário com o email fornecido já existe
     const existingUser = await prisma.user.findUnique({
-      where: { id, email, password, photourl },
+      where: { email },
     });
 
     if (existingUser) {
       return res.status(400).json({ error: 'Email já cadastrado.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        id,
-        email,
-        password: hashedPassword,
-        photourl,
-      },
-    });
+    const user = await createUser({ email, password, photourl });
 
     res.status(201).json({ user });
   } catch (error) {
@@ -78,7 +70,7 @@ app.post('/login', async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id, email, password, photourl },
+      where: { email },
     });
 
     if (!user) {
