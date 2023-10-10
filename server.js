@@ -5,7 +5,13 @@ const bcrypt = require('bcrypt');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: 'https://conectaamigos.vercel.app',
+    },
+  },
+});
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
