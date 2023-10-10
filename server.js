@@ -7,13 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: "postgresql://jhonattan:123@backend-fwd1.onrender.com:5432/postgres",
-    },
-  },
-});
+const prisma = new PrismaClient();
 
 const app = express();
 app.use(cors());
