@@ -8,23 +8,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-async function createUser(email, password, photourl) {
-  try {
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password,
-        photourl,
-      },
-    });
-
-    return user;
-  } catch (error) {
-    console.error('Erro ao criar usuário:', error);
-    throw error;
-  }
-}
-
 app.post('/signup', async (req, res) => {
   try {
     const { email, password, photourl } = req.body;
@@ -44,7 +27,15 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Email já cadastrado.' });
     }
 
-    const user = await createUser(email, password, photourl);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        photourl,
+      },
+    });
 
     res.status(201).json({ user });
   } catch (error) {
