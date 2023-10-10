@@ -8,16 +8,17 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-async function createUser(email, password, photourl) {
+async function createUser(id, email, password, photourl) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
+        id,
         email,
         password: hashedPassword,
         photourl,
-      },
+      }
     });
 
     return user;
