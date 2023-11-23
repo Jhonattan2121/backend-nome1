@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { PrismaClient, User } from '../prisma/generated/client';
+import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 
