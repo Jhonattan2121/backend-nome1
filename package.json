@@ -27,6 +27,9 @@
   "prisma": {
     "schema": "prisma/schema.prisma"
   },
+  "engines": {
+    "node": ">=14.17.0 <19.0.0"
+  },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/body-parser": "^1.19.5",
