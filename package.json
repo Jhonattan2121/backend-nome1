@@ -20,6 +20,7 @@
     "generate-unique-id": "^2.0.3",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.5",
+    "npm": "^8.19.4",
     "pg-promise": "^11.5.4",
     "uuid": "^9.0.1"
   },
