@@ -144,7 +144,6 @@ const config = {
     "db"
   ],
   "activeProvider": "sqlite",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -154,8 +153,7 @@ const config = {
     }
   },
   "inlineSchema": "Z2VuZXJhdG9yIGNsaWVudCB7DQogIHByb3ZpZGVyID0gInByaXNtYS1jbGllbnQtanMiDQogIG91dHB1dCAgID0gIi4vZ2VuZXJhdGVkL2NsaWVudCIgDQoNCn0NCg0KLy8gQ29uZmlndXJhw6fDtWVzIGRvIGJhbmNvIGRlIGRhZG9zDQpkYXRhc291cmNlIGRiIHsNCiAgcHJvdmlkZXIgPSAic3FsaXRlIg0KICB1cmwgICAgICA9ICJmaWxlOi4vZGV2LmRiIiAvLyBTdWJzdGl0dWEgcGVsbyBjYW1pbmhvIGRvIHNldSBhcnF1aXZvIFNRTGl0ZQ0KfQ0KDQoNCg0KbW9kZWwgVXNlciB7DQogIGlkICAgICAgIFN0cmluZyAgICBAaWQgQGRlZmF1bHQodXVpZCgpKSAvLyBHZXJhIGF1dG9tYXRpY2FtZW50ZSB1bSBVVUlEDQogIGVtYWlsICAgIFN0cmluZyAgICBAdW5pcXVlDQogIHBhc3N3b3JkIFN0cmluZw0KICBwaG90b3VybCBTdHJpbmc/DQogIGNyZWF0ZWRBdCBEYXRlVGltZSBAZGVmYXVsdChub3coKSkgQG1hcCgiY3JlYXRlZF9hdCIpDQogIG5hbWUgICAgIFN0cmluZz8NCn0NCg0K",
-  "inlineSchemaHash": "7b3f4d980007ac4725e206e9e7596262fefdf0d347d1ce4b6c81600513d06671",
-  "noEngine": false
+  "inlineSchemaHash": "7b3f4d980007ac4725e206e9e7596262fefdf0d347d1ce4b6c81600513d06671"
 }
 config.dirname = '/'
 
