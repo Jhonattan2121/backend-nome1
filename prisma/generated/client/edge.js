@@ -30,12 +30,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 5.4.2
- * Query Engine version: ac9d7041ed77bcc8a8dbd2ab6616b39013829574
+ * Prisma Client JS version: 5.6.0
+ * Query Engine version: e95e739751f42d8ca026f6b910f5a2dc5adeaeee
  */
 Prisma.prismaVersion = {
-  client: "5.4.2",
-  engine: "ac9d7041ed77bcc8a8dbd2ab6616b39013829574"
+  client: "5.6.0",
+  engine: "e95e739751f42d8ca026f6b910f5a2dc5adeaeee"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -117,7 +117,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\todos meus projetos\\my-backend-app\\prisma\\generated\\client",
+      "value": "D:\\projeto\\backend-nome1\\prisma\\generated\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -128,10 +128,6 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
-      },
-      {
-        "fromEnvVar": null,
-        "value": "debian-openssl-1.1.x"
       }
     ],
     "previewFeatures": [],
@@ -142,8 +138,8 @@ const config = {
     "schemaEnvPath": "../../.env"
   },
   "relativePath": "../..",
-  "clientVersion": "5.4.2",
-  "engineVersion": "ac9d7041ed77bcc8a8dbd2ab6616b39013829574",
+  "clientVersion": "5.6.0",
+  "engineVersion": "e95e739751f42d8ca026f6b910f5a2dc5adeaeee",
   "datasourceNames": [
     "db"
   ],
@@ -157,15 +153,15 @@ const config = {
       }
     }
   },
-  "inlineSchema": "Z2VuZXJhdG9yIGNsaWVudCB7CiAgcHJvdmlkZXIgPSAicHJpc21hLWNsaWVudC1qcyIKICBvdXRwdXQgICA9ICIuL2dlbmVyYXRlZC9jbGllbnQiIAogICAgYmluYXJ5VGFyZ2V0cyA9IFsibmF0aXZlIiwgImRlYmlhbi1vcGVuc3NsLTEuMS54Il0gLy8gQWRpY2lvbmUgZXN0YSBsaW5oYQoKfQoKLy8gQ29uZmlndXJhw6fDtWVzIGRvIGJhbmNvIGRlIGRhZG9zCmRhdGFzb3VyY2UgZGIgewogIHByb3ZpZGVyID0gInNxbGl0ZSIKICB1cmwgICAgICA9ICJmaWxlOi4vZGV2LmRiIiAvLyBTdWJzdGl0dWEgcGVsbyBjYW1pbmhvIGRvIHNldSBhcnF1aXZvIFNRTGl0ZQp9CgoKCm1vZGVsIFVzZXIgewogIGlkICAgICAgIFN0cmluZyAgICBAaWQgQGRlZmF1bHQodXVpZCgpKSAvLyBHZXJhIGF1dG9tYXRpY2FtZW50ZSB1bSBVVUlECiAgZW1haWwgICAgU3RyaW5nICAgIEB1bmlxdWUKICBwYXNzd29yZCBTdHJpbmcKICBwaG90b3VybCBTdHJpbmc/CiAgY3JlYXRlZEF0IERhdGVUaW1lIEBkZWZhdWx0KG5vdygpKSBAbWFwKCJjcmVhdGVkX2F0IikKICBuYW1lICAgICBTdHJpbmc/Cn0KCg==",
-  "inlineSchemaHash": "f477bdcf4e6862608b18228f8d4b7396b072e597869169f080166177e9d8629e",
+  "inlineSchema": "Z2VuZXJhdG9yIGNsaWVudCB7DQogIHByb3ZpZGVyID0gInByaXNtYS1jbGllbnQtanMiDQogIG91dHB1dCAgID0gIi4vZ2VuZXJhdGVkL2NsaWVudCIgDQoNCn0NCg0KLy8gQ29uZmlndXJhw6fDtWVzIGRvIGJhbmNvIGRlIGRhZG9zDQpkYXRhc291cmNlIGRiIHsNCiAgcHJvdmlkZXIgPSAic3FsaXRlIg0KICB1cmwgICAgICA9ICJmaWxlOi4vZGV2LmRiIiAvLyBTdWJzdGl0dWEgcGVsbyBjYW1pbmhvIGRvIHNldSBhcnF1aXZvIFNRTGl0ZQ0KfQ0KDQoNCg0KbW9kZWwgVXNlciB7DQogIGlkICAgICAgIFN0cmluZyAgICBAaWQgQGRlZmF1bHQodXVpZCgpKSAvLyBHZXJhIGF1dG9tYXRpY2FtZW50ZSB1bSBVVUlEDQogIGVtYWlsICAgIFN0cmluZyAgICBAdW5pcXVlDQogIHBhc3N3b3JkIFN0cmluZw0KICBwaG90b3VybCBTdHJpbmc/DQogIGNyZWF0ZWRBdCBEYXRlVGltZSBAZGVmYXVsdChub3coKSkgQG1hcCgiY3JlYXRlZF9hdCIpDQogIG5hbWUgICAgIFN0cmluZz8NCn0NCg0K",
+  "inlineSchemaHash": "7b3f4d980007ac4725e206e9e7596262fefdf0d347d1ce4b6c81600513d06671",
   "noEngine": false
 }
 config.dirname = '/'
 
 config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"dbName\":null,\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":true,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"String\",\"default\":{\"name\":\"uuid\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"email\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"password\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"photourl\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"createdAt\",\"dbName\":\"created_at\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":true,\"type\":\"DateTime\",\"default\":{\"name\":\"now\",\"args\":[]},\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"name\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":false,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[],\"uniqueIndexes\":[],\"isGenerated\":false}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
-
+config.getQueryEngineWasmModule = undefined
 
 config.injectableEdgeEnv = () => ({
   parsed: {}
