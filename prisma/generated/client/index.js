@@ -149,7 +149,6 @@ const config = {
     "db"
   ],
   "activeProvider": "sqlite",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -159,8 +158,7 @@ const config = {
     }
   },
   "inlineSchema": "Z2VuZXJhdG9yIGNsaWVudCB7DQogIHByb3ZpZGVyICAgICAgPSAicHJpc21hLWNsaWVudC1qcyINCiBvdXRwdXQgICA9ICIuL2dlbmVyYXRlZC9jbGllbnQiIA0KICAgIGJpbmFyeVRhcmdldHMgPSBbIm5hdGl2ZSIsICJkZWJpYW4tb3BlbnNzbC0xLjEueCJdIA0KfQ0KDQoNCi8vIENvbmZpZ3VyYcOnw7VlcyBkbyBiYW5jbyBkZSBkYWRvcw0KZGF0YXNvdXJjZSBkYiB7DQogIHByb3ZpZGVyID0gInNxbGl0ZSINCiAgdXJsICAgICAgPSAiZmlsZTouL2Rldi5kYiIgLy8gU3Vic3RpdHVhIHBlbG8gY2FtaW5obyBkbyBzZXUgYXJxdWl2byBTUUxpdGUNCn0NCg0KDQoNCm1vZGVsIFVzZXIgew0KICBpZCAgICAgICBTdHJpbmcgICAgQGlkIEBkZWZhdWx0KHV1aWQoKSkgLy8gR2VyYSBhdXRvbWF0aWNhbWVudGUgdW0gVVVJRA0KICBlbWFpbCAgICBTdHJpbmcgICAgQHVuaXF1ZQ0KICBwYXNzd29yZCBTdHJpbmcNCiAgcGhvdG91cmwgU3RyaW5nPw0KICBjcmVhdGVkQXQgRGF0ZVRpbWUgQGRlZmF1bHQobm93KCkpIEBtYXAoImNyZWF0ZWRfYXQiKQ0KICBuYW1lICAgICBTdHJpbmc/DQp9DQoNCg==",
-  "inlineSchemaHash": "da2e0193c9d26221a7df827a6ff719a2da86af82247477808c3eb16ea14dbaa6",
-  "noEngine": false
+  "inlineSchemaHash": "da2e0193c9d26221a7df827a6ff719a2da86af82247477808c3eb16ea14dbaa6"
 }
 
 const fs = require('fs')
