@@ -19,6 +19,19 @@ interface UserIdParam {
   userId: string;
 }
 
+async function main() {
+  const users = await prisma.user.findMany();
+  console.log(users);
+}
+
+main()
+  .catch(e => {
+    throw e
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+
 app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
 
