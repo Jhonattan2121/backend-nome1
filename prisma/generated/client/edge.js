@@ -152,7 +152,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -162,8 +161,7 @@ const config = {
     }
   },
   "inlineSchema": "Z2VuZXJhdG9yIGNsaWVudCB7DQogIHByb3ZpZGVyICAgICAgPSAicHJpc21hLWNsaWVudC1qcyINCiAgb3V0cHV0ICAgICAgICA9ICIuLi9wcmlzbWEvZ2VuZXJhdGVkL2NsaWVudCINCn0NCg0KLy8gQ29uZmlndXJhw6fDtWVzIGRvIGJhbmNvIGRlIGRhZG9zDQpkYXRhc291cmNlIGRiIHsNCiAgcHJvdmlkZXIgPSAicG9zdGdyZXNxbCINCiAgdXJsICAgICAgPSBlbnYoIkRBVEFCQVNFX1VSTCIpIC8vIFVzZSBhIHZhcmnDoXZlbCBkZSBhbWJpZW50ZSBwYXJhIGFybWF6ZW5hciBzdWEgVVJMIGRvIGJhbmNvIGRlIGRhZG9zDQp9DQoNCm1vZGVsIFVzZXIgew0KICBpZCAgICAgICBTdHJpbmcgICAgQGlkIEBkZWZhdWx0KHV1aWQoKSkgLy8gR2VyYSBhdXRvbWF0aWNhbWVudGUgdW0gVVVJRA0KICBlbWFpbCAgICBTdHJpbmcgICAgQHVuaXF1ZQ0KICBwYXNzd29yZCBTdHJpbmcNCiAgcGhvdG91cmwgU3RyaW5nPw0KICBjcmVhdGVkQXQgRGF0ZVRpbWUgQGRlZmF1bHQobm93KCkpIEBtYXAoImNyZWF0ZWRfYXQiKQ0KICBuYW1lICAgICBTdHJpbmc/DQp9DQo=",
-  "inlineSchemaHash": "fce7ab5e4ce97a803558b75e06a29a9f3b23ab88e90512ce2ee2fa222ed64c6a",
-  "noEngine": false
+  "inlineSchemaHash": "fce7ab5e4ce97a803558b75e06a29a9f3b23ab88e90512ce2ee2fa222ed64c6a"
 }
 config.dirname = '/'
 
