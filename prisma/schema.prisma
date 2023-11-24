@@ -3,14 +3,13 @@ generator client {
   output        = "../prisma/generated/client"
 }
 
-// Configurações do banco de dados
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Use a variável de ambiente para armazenar sua URL do banco de dados
+  url      = env("DATABASE_URL") 
 }
 
 model User {
-  id       String    @id @default(uuid()) // Gera automaticamente um UUID
+  id       String    @id @default(uuid()) 
   email    String    @unique
   password String
   photourl String?
