@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate": "npx prisma generate",
-    "start": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/server.ts"
+    "start": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/server.ts",
+    "vercel-build": "npx prisma migration deploy"
   },
   "keywords": [],
   "author": "",
