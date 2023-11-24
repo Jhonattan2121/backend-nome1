@@ -7,7 +7,7 @@ import cors from 'cors';
 const prisma = new PrismaClient();
 const app = express();
 app.use(cors({
-  origin: 'http://conectaamigos.vercel.app',
+  origin: 'https://conectaamigos.vercel.app',
   credentials: true,
 }));app.use(bodyParser.json());
 
