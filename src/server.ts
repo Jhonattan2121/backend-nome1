@@ -6,9 +6,10 @@ import cors from 'cors';
 
 const prisma = new PrismaClient();
 const app = express();
-
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));app.use(bodyParser.json());
 
 interface UserRequestBody {
   email: string;
@@ -102,7 +103,7 @@ app.get('/users', async (_req: Request, res: Response) => {
   }
 });
 
-const PORT = process.env.PORT || 3333;
+const PORT = process.env.PORT || 3234;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
