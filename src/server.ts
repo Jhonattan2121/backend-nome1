@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import { PrismaClient } from '../prisma/generated';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
-
-const prisma = new PrismaClient();
+import { PrismaClient } from '../prisma/generated';
+const prisma = new PrismaClient({
+  datasources: { db: { url: process.env.DATABASE_URL } }
+})
 const app = express();
 app.use(cors({
   origin: 'https://conectaamigos.vercel.app',
