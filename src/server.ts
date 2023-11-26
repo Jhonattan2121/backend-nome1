@@ -14,7 +14,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(cors({
-  origin: 'http://conectaamigos.vercel.app/login',
+  origin: 'http://conectaamigos.vercel.app',
   credentials: true,
 }));app.use(bodyParser.json());
 
