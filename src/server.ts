@@ -11,8 +11,14 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'http://conectaamigos.vercel.app');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // 1 dia (em segundos)
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+  } else {
+    next();
+  }
 });
 app.use(cors({
   origin: 'http://conectaamigos.vercel.app/login',
