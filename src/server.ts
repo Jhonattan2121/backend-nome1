@@ -7,18 +7,8 @@ const prisma = new PrismaClient({
   datasources: { db: { url: process.env.DATABASE_URL } }
 })
 const app = express();
-app.use((req, res, next) => {
+app.use((req, res, ) => {
   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-
-  // Configurar cabeçalhos adicionais necessários para o pré-voo
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Max-Age', '86400'); // 1 dia (em segundos)
-  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.DATABASE_URL === 'production') {
-    return res.redirect('https://' + req.get('host') + req.url);
-  }
-  next();
 });
 app.use(cors({
   origin: 'https://conectaamigos.vercel.app',  
