@@ -3,21 +3,17 @@ import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import { PrismaClient } from '../prisma/generated';
-const prisma = new PrismaClient({
-  datasources: { db: { url: process.env.DATABASE_URL } }
-})
+
+const prisma = new PrismaClient({});
+
 const app = express();
-app.use((req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://conectaamigos.vercel.app');
-  res.header('origin, x-requested-with, content-type');
-  res.header('PUT, GET, POST, DELETE, OPTIONS')
-  
-  
-});
+
 app.use(cors({
-  origin: 'https://conectaamigos.vercel.app',  
+  origin: 'https://conectaamigos.vercel.app',
   credentials: true,
-}));app.use(bodyParser.json());
+}));
+
+app.use(bodyParser.json());
 
 interface UserRequestBody {
   email: string;
@@ -27,19 +23,6 @@ interface UserRequestBody {
 interface UserIdParam {
   userId: string;
 }
-
-async function main() {
-  const users = await prisma.user.findMany();
-  console.log(users);
-}
-
-main()
-  .catch(e => {
-    throw e
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
 
 app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
@@ -86,7 +69,7 @@ app.get('/user/:userId', async (req: Request<UserIdParam>, res: Response) => {
     const userId = req.params.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: userId }, // Remova a conversão para número
+      where: { id: userId },
     });
 
     if (!user) {
@@ -98,8 +81,6 @@ app.get('/user/:userId', async (req: Request<UserIdParam>, res: Response) => {
     res.status(500).json({ error: 'Erro ao buscar perfil do usuário.' });
   }
 });
-
-
 
 app.get('/users', async (_req: Request, res: Response) => {
   try {
