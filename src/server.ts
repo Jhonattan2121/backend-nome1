@@ -9,6 +9,9 @@ const prisma = new PrismaClient({
 const app = express();
 app.use((req, res) => {
   res.header('Access-Control-Allow-Origin', 'https://conectaamigos.vercel.app');
+  res.header('origin, x-requested-with, content-type');
+  res.header('PUT, GET, POST, DELETE, OPTIONS')
+  
   
 });
 app.use(cors({
