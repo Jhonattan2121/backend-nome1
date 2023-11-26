@@ -8,17 +8,10 @@ const prisma = new PrismaClient({
 })
 const app = express();
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://conectaamigos.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Max-Age', '86400'); // 1 dia (em segundos)
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-  } else {
-    next();
+  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV === 'production') {
+    return res.redirect('https://' + req.get('host') + req.url);
   }
+  next();
 });
 app.use(cors({
   origin: 'http://conectaamigos.vercel.app/login',
