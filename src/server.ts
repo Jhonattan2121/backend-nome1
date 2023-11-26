@@ -7,8 +7,9 @@ const prisma = new PrismaClient({
   datasources: { db: { url: process.env.DATABASE_URL } }
 })
 const app = express();
-app.use((req, res, ) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+app.use((req, res) => {
+  res.header('Access-Control-Allow-Origin', 'https://conectaamigos.vercel.app');
+  
 });
 app.use(cors({
   origin: 'https://conectaamigos.vercel.app',  
