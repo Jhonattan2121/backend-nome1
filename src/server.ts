@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import { PrismaClient } from '../prisma/generated';
-
+import nodemailer from 'nodemailer'; // Importe o nodemailer
+import jwt from 'jsonwebtoken'
 const prisma = new PrismaClient({});
 
 const app = express();
@@ -72,52 +73,24 @@ app.get('/users', async (_req: Request, res: Response) => {
   }
 });
 
-
-// Adicione esta rota antes das rotas de cadastro
-app.get('/userExists', async (req: Request<{ email: string }, {}, {}>, res: Response) => {
-  const { email } = req.query;
-
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: email as string },
-    });
-
-    res.json({ exists: !!existingUser });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro ao verificar a existência do e-mail.' });
-  }
-});
-
-// Rota /signup modificado
 app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
-
-  // Verificar se o e-mail já está cadastrado
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (existingUser) {
-    return res.status(400).json({ error: 'E-mail já cadastrado.' });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const user = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword,
+        password: await bcrypt.hash(password, 10),
+        
       },
     });
-
     res.status(201).json({ user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro no cadastro de usuário.' });
   }
 });
+
 
 
 
