@@ -24,8 +24,17 @@ interface UserIdParam {
   userId: string;
 }
 
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Formato de e-mail inválido.' });
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
