@@ -24,10 +24,17 @@ interface UserIdParam {
   userId: string;
 }
 
-function isValidEmail(email: string): boolean {
+const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
+  const allowedDomains = ['gmail.com', 'hotmail.com']; // Adicione os domínios permitidos aqui
+
+  if (!emailRegex.test(email)) {
+    return false;
+  }
+
+  const domain = email.split('@')[1];
+  return allowedDomains.includes(domain);
+};
 
 app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
