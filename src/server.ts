@@ -43,6 +43,7 @@ app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response)
     return res.status(400).json({ error: 'Formato de e-mail inválido.' });
   }
 
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
