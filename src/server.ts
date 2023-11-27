@@ -24,25 +24,19 @@ interface UserIdParam {
   userId: string;
 }
 
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const allowedDomains = ['gmail.com', 'hotmail.com']; // Adicione os domínios permitidos aqui
 
-  if (!emailRegex.test(email)) {
-    return false;
-  }
-
-  const domain = email.split('@')[1];
-  return allowedDomains.includes(domain);
-};
 
 app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
 
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ error: 'Formato de e-mail inválido.' });
-  }
+  // Verificar se o e-mail já está cadastrado
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
 
+  if (existingUser) {
+    return res.status(400).json({ error: 'E-mail já cadastrado.' });
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -60,6 +54,7 @@ app.post('/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response)
     res.status(500).json({ error: 'Erro no cadastro de usuário.' });
   }
 });
+
 
 app.post('/login', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
   const { email, password } = req.body;
@@ -108,6 +103,8 @@ app.get('/users', async (_req: Request, res: Response) => {
     res.status(500).json({ error: 'Erro ao buscar usuários.' });
   }
 });
+
+
 
 const PORT = process.env.PORT || 3234;
 app.listen(PORT, () => {
