@@ -17,15 +17,17 @@ app.use(bodyParser.json());
 
 
 interface UserRequestBody {
+  id: string;
   email: string;
   password: string;
 }
 
 const SECRET_KEY = 'Jhonattan';
 
-const generateToken = (userId: string ) => {
+const generateToken = (userId: number) => {
   return jwt.sign({ id: userId }, SECRET_KEY, { expiresIn: '1h' });
 };
+
 
 const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header('Authorization')?.split(' ')[1];
@@ -39,10 +41,6 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
       return res.status(403).json({ error: 'Token is not valid' });
     }
 
-    if (!decoded || typeof decoded.id !== 'number') {
-      return res.status(403).json({ error: 'Invalid user ID in the token' });
-    }
-
     (req as any).userId = +decoded.id;
     next();
   });
@@ -50,7 +48,7 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
 
 
 app.post('/Auth/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
-  const { email, password } = req.body;
+  const { id , email, password } = req.body;
 
   if (!email || !password) {
     return res.status(422).json({ msg: 'Email e senha são obrigatórios' });
@@ -68,14 +66,16 @@ app.post('/Auth/signup', async (req: Request<{}, {}, UserRequestBody>, res: Resp
 
     const newUser = await prisma.user.create({
       data: { 
+        id,
         email, 
         password: await bcrypt.hash(password, 10),
 
       },
     });
 
-    const token = generateToken(newUser.id);
-
+    const token = generateToken(Number(newUser.id));
+    res.status(201).json({ user: newUser, token });
+    
 
     res.status(201).json({ user: newUser , token   });
   } catch (error) {
@@ -102,9 +102,8 @@ app.post('/Auth/login', async (req: Request<{}, {}, UserRequestBody>, res: Respo
       return res.status(401).json({ error: 'Credenciais inválidas.' });
     }
 
-    const token = generateToken(user.id);
-
-    res.status(200).json({ id: user.id, token });
+    res.status(200).json({ id: user.id });
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro no processo de login.' });
