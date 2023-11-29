@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
-import { PrismaClient } from '../prisma/generated';
+import { PrismaClient, User } from '../prisma/generated';
 import jwt from 'jsonwebtoken'
 const prisma = new PrismaClient({});
 
@@ -14,127 +14,146 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-
-
-interface UserRequestBody {
-  id: string;
-  email: string;
-  password: string;
-}
-
 const SECRET_KEY = 'Jhonattan';
+
 
 const generateToken = (userId: number) => {
   return jwt.sign({ id: userId }, SECRET_KEY, { expiresIn: '1h' });
 };
 
-
-const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.header('Authorization')?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  jwt.verify(token, SECRET_KEY, (err: any, decoded: any) => {
-    if (err) {
-      return res.status(403).json({ error: 'Token is not valid' });
-    }
-
-    (req as any).userId = +decoded.id;
-    next();
-  });
-};
-
-
-app.post('/Auth/signup', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
-  const { id , email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(422).json({ msg: 'Email e senha são obrigatórios' });
-  }
-
+app.post('/Auth/signup', async (req: Request, res: Response) => {
   try {
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    const { email, password } = req.body;
+
+    // Hash da senha
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Criação do usuário no banco de dados
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+      },
     });
+    const NewUser = generateToken(Number(user.id));
+    res.status(201).json({ user: user, NewUser });
 
-    if (existingUser) {
-      return res.status(409).json({ error: 'Email já cadastrado.' });
-    }
-   
 
-    const newUser = await prisma.user.create({
-      data: { 
-        id,
-        email, 
-        password: await bcrypt.hash(password, 10),
+    res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro durante o registro' });
+  }
+});
 
+app.post('/Auth/login', async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    // Busca do usuário no banco de dados
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
       },
     });
 
-    const token = generateToken(Number(newUser.id));
-    res.status(201).json({ user: newUser, token });
-    
-
-    res.status(201).json({ user: newUser , token   });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro no cadastro de usuário.' });
-  }
-});
-
-app.post('/Auth/login', async (req: Request<{}, {}, UserRequestBody>, res: Response) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
     if (!user) {
-      return res.status(401).json({ error: 'Credenciais inválidas.' });
+      return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
+    // Verificação da senha
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Credenciais inválidas.' });
+      return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
-    res.status(200).json({ id: user.id });
-    
+    // Geração do token JWT
+    const token = jwt.sign({ userId: user.id }, 'secretpassword', { expiresIn: '1h' });
+
+    res.status(200).json({ token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro no processo de login.' });
+    res.status(500).json({ error: 'Erro durante o login' });
   }
 });
 
-app.get('/user/:userId', authenticateJWT, async (req: Request, res: Response) => {
+app.get('/user/:userId', async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).userId;
+    const userId = parseInt(req.params.id, 10);
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: {
+        id: userId,
+      },
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'Perfil do usuário não encontrado.' });
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar perfil do usuário.' });
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar usuário' });
   }
 });
 
-app.get('/users', authenticateJWT, async (_req: Request, res: Response) => {
+app.put('/users/:userId', async (req: Request, res: Response) => {
   try {
-    const users = await prisma.user.findMany();
-    res.json(users);
+    const userId = parseInt(req.params.id, 10);
+    const { email, password } = req.body;
+
+    // Hash da nova senha, se fornecida
+    let hashedPassword = password;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Atualização do usuário no banco de dados
+    const user = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    res.status(200).json({ message: 'Usuário atualizado com sucesso!' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao buscar usuários.' });
+    res.status(500).json({ error: 'Erro ao atualizar usuário' });
+  }
+});
+
+// Rota de exclusão de usuário
+app.delete('/users/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+
+    // Exclusão do usuário no banco de dados
+    await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+
+    res.status(200).json({ message: 'Usuário excluído com sucesso!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao excluir usuário' });
+  }
+});
+
+app.get('/users', async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar usuários' });
   }
 });
 
