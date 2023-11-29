@@ -1,13 +1,11 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import { PrismaClient, User } from '../prisma/generated';
 import jwt from 'jsonwebtoken'
 const prisma = new PrismaClient({});
-
 const app = express();
-
 app.use(cors({
   origin: 'https://conectaamigos.vercel.app',
   credentials: true,
@@ -128,7 +126,6 @@ app.put('/users/:userId', async (req: Request, res: Response) => {
   }
 });
 
-// Rota de exclusão de usuário
 app.delete('/users/:userId', async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.id, 10);
