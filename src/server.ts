@@ -9,7 +9,10 @@ const app = express();
 app.use(cors({
   origin: 'https://conectaamigos.vercel.app',
   credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  optionsSuccessStatus: 204,
 }));
+
 
 app.use(bodyParser.json());
 const SECRET_KEY = 'Jhonattan';
