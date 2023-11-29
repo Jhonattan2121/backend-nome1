@@ -34,6 +34,8 @@ app.post('/Auth/signup', async (req: Request, res: Response) => {
       },
     });
     const NewUser = generateToken(Number(user.id));
+    res.header('Access-Control-Allow-Origin', 'https://conectaamigos.vercel.app');
+    res.header('Access-Control-Allow-Credentials', 'true');
     res.status(201).json({ user: user, NewUser });
 
 
