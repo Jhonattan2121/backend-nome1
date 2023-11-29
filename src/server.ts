@@ -33,18 +33,19 @@ app.post('/Auth/signup', async (req: Request, res: Response) => {
         password: hashedPassword,
       },
     });
+
     const NewUser = generateToken(Number(user.id));
+
     res.header('Access-Control-Allow-Origin', 'https://conectaamigos.vercel.app');
     res.header('Access-Control-Allow-Credentials', 'true');
-    res.status(201).json({ user: user, NewUser });
 
-
-    res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+    res.status(201).json({ user, NewUser, message: 'Usuário registrado com sucesso!' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erro durante o registro' });
   }
 });
+
 
 app.post('/Auth/login', async (req: Request, res: Response) => {
   try {
