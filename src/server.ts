@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://projeto-front-end-login-e-cadastro-jhonattan2121.vercel.app',
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     optionsSuccessStatus: 204,
