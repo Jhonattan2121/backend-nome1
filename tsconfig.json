@@ -1,23 +1,19 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "outDir": "./dist",
-      "rootDir": "./src",
-      "baseUrl": "./",
-      "paths": {
-        "*": ["node_modules/*", "src/*"]
-      }
-    },
-    "include": [
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "node_modules"
-    ]
-  }
-  
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "types": ["node", "pg"],
+    "resolveJsonModule": true
+
+
+  },
+  "moduleResolution": "node",
+  "baseUrl": "./",
+  "paths": {
+    "*": ["node_modules/*"]
+  },
+  "include": ["src/**/*.ts", "src/migrations/001_create_users_table.ts", "prisma/prismaClient.ts"],
+  "exclude": ["node_modules"]
+}
